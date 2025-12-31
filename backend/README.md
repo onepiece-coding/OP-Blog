@@ -27,7 +27,7 @@ A production-minded Express + TypeScript REST API for a blogging platform (users
 - MongoDB (Mongoose)
 - Cloudinary (media)
 - Zod (validation)
-- Jest (tests) + mongodb-memory-server for integration tests [Not available yet]
+- Jest (tests) + mongodb-memory-server for integration tests
 - ESLint + Prettier
 
 ---
