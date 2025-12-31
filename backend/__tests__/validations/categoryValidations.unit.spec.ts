@@ -28,10 +28,10 @@ describe('validateCreateCategory schema', () => {
     expect(paths).toContain('title');
   });
 
-  test('allows empty/whitespace-only title after trim (no min length enforced by schema)', () => {
+  test('rejects empty/whitespace-only title after trim  min length enforced by schema)', () => {
     const input = { title: '    ' };
     const parsed = validateCreateCategory.safeParse(input);
-    expect(parsed.success).toBe(true);
+    expect(parsed.success).toBe(false);
     if (parsed.success) expect(parsed.data.title).toBe('');
   });
 });

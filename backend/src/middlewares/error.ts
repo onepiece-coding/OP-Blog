@@ -17,9 +17,26 @@ export const errorHandler = (
   res: Response,
   _next: NextFunction,
 ) => {
+  // Convert Mongoose validation errors to 400 with structured messages
+  if (err && err.name === 'ValidationError' && err.errors) {
+    const errors: Record<string, any> = {};
+    for (const [key, val] of Object.entries(err.errors)) {
+      // val may contain message
+      errors[key] = { message: (val as any).message };
+    }
+    const response: Record<string, any> = {
+      message: 'Validation failed',
+      errors,
+    };
+    if (process.env.NODE_ENV !== 'production') {
+      response.stack = err.stack;
+    }
+    return res.status(400).json(response);
+  }
+
   const status = err.statusCode ?? 500;
-  const response: Record<string, any> = { message: err.message };
-  if (err.errors) response.errors = err.errors; // <-- include zod details
+  const response: Record<string, any> = { message: err.message ?? 'Internal Server Error' };
+  if (err.errors) response.errors = err.errors; // include zod details or attached structured errors
   if (process.env.NODE_ENV !== 'production') response.stack = err.stack;
   res.status(status).json(response);
 };

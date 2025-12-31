@@ -88,5 +88,61 @@ describe('error middlewares', () => {
       expect(sent).toHaveProperty('errors', err.errors);
       expect(sent).toHaveProperty('stack');
     });
+
+    test('converts Mongoose ValidationError into 400 with structured errors and includes stack in non-production', () => {
+      process.env.NODE_ENV = 'test';
+
+      const err: any = {
+        name: 'ValidationError',
+        errors: {
+          username: { message: 'Username is required' },
+          email: { message: 'Email invalid' },
+        },
+        stack: 'validation-stack',
+      };
+
+      const jsonMock = jest.fn();
+      const statusMock = jest.fn().mockImplementation(() => ({ json: jsonMock }));
+      const res = { status: statusMock } as unknown as Response;
+
+      errorHandler(err, {} as Request, res, (() => {}) as NextFunction);
+
+      expect(statusMock).toHaveBeenCalledWith(400);
+      expect(jsonMock).toHaveBeenCalledTimes(1);
+
+      const sent = jsonMock.mock.calls[0][0] as Record<string, unknown>;
+      expect(sent).toHaveProperty('message', 'Validation failed');
+      expect(sent).toHaveProperty('errors');
+      expect((sent.errors as any).username).toEqual({ message: 'Username is required' });
+      expect((sent.errors as any).email).toEqual({ message: 'Email invalid' });
+      expect(sent).toHaveProperty('stack', 'validation-stack');
+    });
+
+    test('converts Mongoose ValidationError into 400 but hides stack in production', () => {
+      process.env.NODE_ENV = 'production';
+
+      const err: any = {
+        name: 'ValidationError',
+        errors: {
+          username: { message: 'Username required' },
+        },
+        stack: 'should-not-show',
+      };
+
+      const jsonMock = jest.fn();
+      const statusMock = jest.fn().mockImplementation(() => ({ json: jsonMock }));
+      const res = { status: statusMock } as unknown as Response;
+
+      errorHandler(err, {} as Request, res, (() => {}) as NextFunction);
+
+      expect(statusMock).toHaveBeenCalledWith(400);
+      expect(jsonMock).toHaveBeenCalledTimes(1);
+
+      const sent = jsonMock.mock.calls[0][0] as Record<string, unknown>;
+      expect(sent).toHaveProperty('message', 'Validation failed');
+      expect(sent).toHaveProperty('errors');
+      expect((sent.errors as any).username).toEqual({ message: 'Username required' });
+      expect(sent).not.toHaveProperty('stack');
+    });
   });
 });

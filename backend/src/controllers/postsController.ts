@@ -297,12 +297,12 @@ export const toggleLikeCtrl = asyncHandler(
       post = await Post.findByIdAndUpdate(
         postId,
         {
-          $push: { likes: loggedInUser },
+          $addToSet: { likes: loggedInUser },
         },
         { new: true },
       );
     }
 
     res.status(200).json(post);
-  },
+  }
 );

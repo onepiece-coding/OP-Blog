@@ -236,4 +236,63 @@ describe('verifyToken middleware', () => {
     expect(err.message).toMatch(/Not allowed, only user himself/);
     expect(err.status || err.statusCode).toBe(403);
   });
+
+  it('verifyTokenAndAdmin returns 401 when verifyToken finished but req.user not set (simulated)', async () => {
+    const mod = await import('../../src/middlewares/verifyToken.js');
+    const { verifyTokenAndAdmin } = mod;
+
+    const req = httpMocks.createRequest({
+      headers: { authorization: 'Bearer SIMULATE_NO_USER' },
+    });
+    const next = jest.fn();
+
+    verifyTokenAndAdmin(req as any, {} as any, next);
+    await tick();
+
+    expect(next).toHaveBeenCalledTimes(1);
+    const err = next.mock.calls[0][0] as any;
+    expect(err).toBeTruthy();
+    expect(err.message).toMatch(/No token provided/i);
+    expect(err.status || err.statusCode).toBe(401);
+  });
+
+  it('verifyTokenAndOnlyUser returns 401 when verifyToken finished but req.user not set (simulated)', async () => {
+    const mod = await import('../../src/middlewares/verifyToken.js');
+    const { verifyTokenAndOnlyUser } = mod;
+
+    const req = httpMocks.createRequest({
+      headers: { authorization: 'Bearer SIMULATE_NO_USER' },
+      params: { id: 'any-id' },
+    });
+    const next = jest.fn();
+
+    verifyTokenAndOnlyUser(req as any, {} as any, next);
+    await tick();
+
+    expect(next).toHaveBeenCalledTimes(1);
+    const err = next.mock.calls[0][0] as any;
+    expect(err).toBeTruthy();
+    expect(err.message).toMatch(/No token provided/i);
+    expect(err.status || err.statusCode).toBe(401);
+  });
+
+  it('verifyTokenAndAuthorization returns 401 when verifyToken finished but req.user not set (simulated)', async () => {
+    const mod = await import('../../src/middlewares/verifyToken.js');
+    const { verifyTokenAndAuthorization } = mod;
+
+    const req = httpMocks.createRequest({
+      headers: { authorization: 'Bearer SIMULATE_NO_USER' },
+      params: { id: 'someone' },
+    });
+    const next = jest.fn();
+
+    verifyTokenAndAuthorization(req as any, {} as any, next);
+    await tick();
+
+    expect(next).toHaveBeenCalledTimes(1);
+    const err = next.mock.calls[0][0] as any;
+    expect(err).toBeTruthy();
+    expect(err.message).toMatch(/No token provided/i);
+    expect(err.status || err.statusCode).toBe(401);
+  });
 });
