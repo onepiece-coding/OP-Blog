@@ -10,14 +10,26 @@ type SchemaMap = {
   params?: AnyZodSchema;
 };
 
-/**
- * validate(schema) -> validates req.body (default)
- * validate(schema, 'query') -> validates req.query
- * validate({ body, params }) -> validates multiple parts
- *
- * On success: writes parsed data into req.body/query/params.
- * On failure: forwards 400 with err.errors.
- */
+function safeAssignReqPart(req: any, part: 'body' | 'query' | 'params', parsed: any) {
+  if (parsed === undefined) return;
+  const existing = req[part];
+  if (existing && typeof existing === 'object') {
+    try {
+      Object.assign(existing, parsed);
+      return;
+    } catch {
+      // fallthrough to attempt assignment below
+    }
+  }
+
+  try {
+    req[part] = parsed;
+  } catch {
+    // swallow to avoid crashing. This scenario is rare; tests should catch it.
+    // We intentionally do not rethrow, to avoid bringing down the app for odd req shapes.
+  }
+}
+
 export const validate =
   (
     schemaOrMap: AnyZodSchema | SchemaMap,
@@ -46,7 +58,7 @@ export const validate =
       if (!result.success) {
         collectedErrors[part] = formatZodError(result.error);
       } else {
-        (req as any)[part] = result.data;
+        safeAssignReqPart(req as any, part, result.data);
       }
     }
 

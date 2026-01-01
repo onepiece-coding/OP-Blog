@@ -40,4 +40,27 @@ describe('validate middleware', () => {
     expect(err.status).toBe(400);
     expect((err as any).errors).toBeTruthy();
   });
+
+  it('does not throw when req parts are getter-only (non-writable), still calls next', async () => {
+    const { validate } = await import('../../src/middlewares/validate.js');
+    const schema = z.object({ page: z.coerce.number().int().min(1) });
+
+    const req: any = {};
+    Object.defineProperty(req, 'query', {
+      get() {
+        return { page: '2' };
+      },
+      enumerable: true,
+    });
+
+    const res = httpMocks.createResponse();
+    const next = jest.fn();
+
+    const mw = validate(schema, 'query');
+
+    const call = () => (mw as any)(req, res, next);
+    expect(call).not.toThrow();
+
+    expect(next).toHaveBeenCalled();
+  });
 });
