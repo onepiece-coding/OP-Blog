@@ -16,8 +16,9 @@
     "test:unit:watch": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --config=jest.unit.config.cjs --watch",
     "test:integration": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --config=jest.integration.config.cjs --runInBand",
     "test:integration:watch": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --config=jest.integration.config.cjs --watch",
-    "test:cov": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --config=jest.config.cjs --coverage --runInBand",
-    "test": "npm run test:unit && npm run test:integration",
+    "test:e2e": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --config=jest.e2e.config.cjs --runInBand",
+    "test:e2e:watch": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --config=jest.e2e.config.cjs --watch",
+    "test": "npm run test:unit && npm run test:integration && npm run test:e2e",
     "coverage": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --config=jest.coverage.config.cjs --runInBand --coverage"
   },
   "dependencies": {

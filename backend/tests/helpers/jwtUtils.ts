@@ -13,7 +13,6 @@ export function decodeToken(token: string): TokenPayload {
     const payload = jwt.verify(token, env.JWT_SECRET!) as TokenPayload;
     return payload;
   } catch (err: unknown) {
-    // throw a clearer, test-friendly error
     throw new Error(`Invalid JWT token: ${(err as Error).message}`);
   }
 }

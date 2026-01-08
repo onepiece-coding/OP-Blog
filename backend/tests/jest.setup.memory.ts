@@ -1,25 +1,27 @@
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
-let mongod: MongoMemoryServer;
+let mongo: MongoMemoryServer;
 
 beforeAll(async () => {
-  mongod = await MongoMemoryServer.create();
-  process.env.MONGO_URI = mongod.getUri();
-  process.env.NODE_ENV = 'test';
-  await mongoose.connect(process.env.MONGO_URI as string);
+  mongo = await MongoMemoryServer.create();
+
+  // Optional worker isolation (safe even if undefined)
+  const workerId = process.env.JEST_WORKER_ID ?? '0';
+  const uri = mongo.getUri(`jest-e2e-${workerId}`);
+
+  await mongoose.connect(uri);
 });
 
 afterEach(async () => {
-  const collections = mongoose.connection.collections;
-  for (const key of Object.keys(collections)) {
-    const coll = collections[key];
-    if (!coll) continue;
-    try { await coll.deleteMany({}); } catch {}
+  const collections = await mongoose.connection.db!.collections();
+
+  for (const collection of collections) {
+    await collection.deleteMany({});
   }
 });
 
 afterAll(async () => {
-  try { await mongoose.disconnect(); } catch {}
-  if (mongod) await mongod.stop();
+  await mongoose.connection.close();
+  await mongo.stop();
 });

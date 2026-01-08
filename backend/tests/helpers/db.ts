@@ -1,8 +1,5 @@
 import mongoose from 'mongoose';
 
-/**
- * Clears all collections. Use in afterEach to ensure fresh state.
- */
 export async function clearDatabase() {
   const collections = mongoose.connection.collections;
   for (const key of Object.keys(collections)) {
@@ -17,18 +14,12 @@ export async function clearDatabase() {
   }
 }
 
-/**
- * Drop all collections (useful for full reset).
- */
 export async function dropDatabase() {
   try {
     await mongoose.connection.dropDatabase();
   } catch {}
 }
 
-/**
- * Disconnect mongoose
- */
 export async function disconnectDB() {
   try {
     await mongoose.disconnect();

@@ -1,10 +1,4 @@
-/**
- * Reset/clear third-party mocks between tests.
- * Your jest config maps nodemailer/cloudinary -> tests/mocks/*.cjs
- * So require(...) will load those mocked modules.
- */
 export function resetThirdPartyMocks() {
-  // Nodemailer: clear its mock send function(s)
   try {
     const nodemailer = require('nodemailer');
     if (nodemailer && nodemailer.__mockSendMail && typeof nodemailer.__mockSendMail.mockClear === 'function') {
@@ -18,7 +12,6 @@ export function resetThirdPartyMocks() {
     // ignore if not present
   }
 
-  // Cloudinary: clear spies you exposed in the CJS mock
   try {
     const cloudinary = require('cloudinary');
     if (cloudinary && cloudinary.__uploadStreamSpy && typeof cloudinary.__uploadStreamSpy.mockClear === 'function') {

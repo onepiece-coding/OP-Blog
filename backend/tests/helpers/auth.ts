@@ -1,16 +1,11 @@
+import supertest from 'supertest';
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import app from '../../src/app.js';
 import { env } from '../../src/env.js';
 import User from '../../src/models/User.js';
 import VerificationToken from '../../src/models/VerificationToken.js';
-import type supertest from 'supertest';
 
-/**
- * loginAndGetToken(agent?, email, password)
- * - agent: optional supertest agent (supertest.SuperTest<supertest.Test>)
- *   if omitted we use request(app) internally.
- */
 export async function loginAndGetToken(
   agent: supertest.SuperTest<supertest.Test> | undefined,
   email: string,
@@ -24,9 +19,7 @@ export async function loginAndGetToken(
   return res.body.token as string;
 }
 
-/**
- * registerAndLogin(agent?, opts)
- */
+
 export async function registerAndLogin(
   agent: supertest.SuperTest<supertest.Test> | undefined,
   {
@@ -46,21 +39,17 @@ export async function registerAndLogin(
     isAdmin,
   };
 
-  // Register
   const regRes = await client.post('/api/v1/auth/register').send(body);
   if (regRes.status >= 400) {
     throw new Error(`Register failed: ${regRes.status} ${JSON.stringify(regRes.body)}`);
   }
 
-  // Find user in DB
   const created = await User.findOne({ email: body.email });
   if (!created) throw new Error('User not found after register');
 
-  // Convenience: mark verified for most tests
   created.isAccountVerified = true;
   await created.save();
 
-  // Login via API to get token
   const loginRes = await client
     .post('/api/v1/auth/login')
     .send({ email: body.email, password: passwordPlain });

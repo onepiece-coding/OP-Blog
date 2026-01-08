@@ -20,7 +20,7 @@ export const userFactory = async (
   const data = {
     username: `u_${random}`,
     email: `u_${Date.now()}_${random}@test.local`,
-    password: 'Aa!123456', // plaintext: will be hashed by mongoose pre-save
+    password: 'Aa!123456',
     isAdmin: false,
     isAccountVerified: true,
     ...overrides,
@@ -28,7 +28,6 @@ export const userFactory = async (
   
   const u = new User(data);
   await u.save();
-  // return fresh instance
   return u;
 };
 

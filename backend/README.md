@@ -15,7 +15,7 @@ A production-minded Express + TypeScript REST API for a blogging platform (users
 - Image upload integration with Cloudinary (memory upload + streaming) 
 - Input validation with Zod  
 - TypeScript + ESM (Node `nodenext`)  
-- Unit + integration tests (Jest + mongodb-memory-server)  
+- Unit + integration + e2e tests (Jest + mongodb-memory-server)  
 - Graceful shutdown, error handling, typed environment validation
 
 ---
@@ -27,7 +27,7 @@ A production-minded Express + TypeScript REST API for a blogging platform (users
 - MongoDB (Mongoose)
 - Cloudinary (media)
 - Zod (validation)
-- Jest (tests) + mongodb-memory-server for integration tests
+- Jest (tests) + mongodb-memory-server for integration & e2e tests
 - ESLint + Prettier
 
 ---
